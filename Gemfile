@@ -38,7 +38,7 @@ gem "rack-cors"
 group :development, :test do
   gem "brakeman", require: false
   gem "dotenv-rails"
-  gem "guard" # NOTE: this is necessary in newer versions
+  gem "guard"
   gem "guard-minitest"
   gem "pry"
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

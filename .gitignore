@@ -37,3 +37,4 @@ coverage
 .db-seeded
 .db-created
 taking_care_*
+app_*
