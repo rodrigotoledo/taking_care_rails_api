@@ -10,7 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_09_132047) do
+ActiveRecord::Schema[8.0].define(version: 2025_05_11_211759) do
+  create_table "roles", force: :cascade do |t|
+    t.string "name", null: false
+  end
+
   create_table "sessions", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "ip_address"
@@ -25,7 +29,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_09_132047) do
     t.string "password_digest", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.json "roles", default: ["patient"]
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
+  end
+
+  create_table "users_roles", force: :cascade do |t|
+    t.integer "users_id", null: false
+    t.integer "roles_id", null: false
+    t.index ["roles_id"], name: "index_users_roles_on_roles_id"
+    t.index ["users_id"], name: "index_users_roles_on_users_id"
   end
 
   add_foreign_key "sessions", "users"
