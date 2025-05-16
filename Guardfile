@@ -1,42 +1,59 @@
-# A sample Guardfile
-# More info at https://github.com/guard/guard#readme
+# Guardfile para RSpec com configurações avançadas
 
-## Uncomment and set this to only include directories you want to watch
-# directories %w(app lib config test spec features) \
-#  .select{|d| Dir.exist?(d) ? d : UI.warning("Directory #{d} does not exist")}
+guard 'rspec', cmd: 'bundle exec rspec' do
+  require 'guard/rspec/dsl'
+  dsl = Guard::RSpec::Dsl.new(self)
 
-## Note: if you are using the `directories` clause above and you are not
-## watching the project directory ('.'), then you will want to move
-## the Guardfile to a watched dir and symlink it back, e.g.
-#
-#  $ mkdir config
-#  $ mv Guardfile config/
-#  $ ln -s config/Guardfile .
-#
-# and, you'll have to watch "config/Guardfile" instead of "Guardfile"
+  # Ignore certos diretórios/padrões
+  ignore %r{^spec/(fixtures|support)/}
+  ignore %r{^spec/features/} # Se você tiver specs de features separadas
 
-guard :minitest do
-  # with Minitest::Unit
-  watch(%r{^test/(.*)\/?test_(.*)\.rb$})
-  watch(%r{^lib/(.*/)?([^/]+)\.rb$})     { |m| "test/#{m[1]}test_#{m[2]}.rb" }
-  watch(%r{^test/test_helper\.rb$})      { 'test' }
+  # Configurações do RSpec
+  rspec_opts = {
+    cmd: 'bundle exec rspec',
+    failed_mode: :focus,    # Executa apenas falhas na próxima rodada
+    change_format: :documentation, # Formato de saída quando há mudanças
+    all_format: :progress,  # Formato de saída quando executando tudo
+    all_on_start: false,    # Não executa todos os testes no início
+    keep_failed: true,      # Mantém os falhos na lista para reexecução
+    run_all: { cmd: 'bundle exec rspec' } # Comando para executar todos os testes
+  }
 
-  # with Minitest::Spec
-  # watch(%r{^spec/(.*)_spec\.rb$})
-  # watch(%r{^lib/(.+)\.rb$})         { |m| "spec/#{m[1]}_spec.rb" }
-  # watch(%r{^spec/spec_helper\.rb$}) { 'spec' }
+  # Watch padrão para specs
+  watch(dsl.rspec.spec_helper) { 'spec' }
+  watch(dsl.rspec.spec_support) { 'spec' }
+  watch(dsl.rspec.spec_files)
 
-  # Rails 4
-  # watch(%r{^app/(.+)\.rb$})                               { |m| "test/#{m[1]}_test.rb" }
-  # watch(%r{^app/controllers/application_controller\.rb$}) { 'test/controllers' }
-  # watch(%r{^app/controllers/(.+)_controller\.rb$})        { |m| "test/integration/#{m[1]}_test.rb" }
-  # watch(%r{^app/views/(.+)_mailer/.+})                    { |m| "test/mailers/#{m[1]}_mailer_test.rb" }
-  # watch(%r{^lib/(.+)\.rb$})                               { |m| "test/lib/#{m[1]}_test.rb" }
-  # watch(%r{^test/.+_test\.rb$})
-  # watch(%r{^test/test_helper\.rb$}) { 'test' }
+  # Watch para arquivos Ruby
+  watch(%r{^app/(.+)\.rb$}) { |m| "spec/#{m[1]}_spec.rb" }
+  watch(%r{^lib/(.+)\.rb$}) { |m| "spec/lib/#{m[1]}_spec.rb" }
+  watch(%r{^spec/.+_spec\.rb$})
 
-  # Rails < 4
-  # watch(%r{^app/controllers/(.*)\.rb$}) { |m| "test/functional/#{m[1]}_test.rb" }
-  # watch(%r{^app/helpers/(.*)\.rb$})     { |m| "test/helpers/#{m[1]}_test.rb" }
-  # watch(%r{^app/models/(.*)\.rb$})      { |m| "test/unit/#{m[1]}_test.rb" }
+  # Watch para views (se aplicável)
+  watch(%r{^app/views/(.+)/.*\.(erb|haml|slim)$}) { |m| "spec/views/#{m[1]}" }
+
+  # Watch para controllers
+  watch(%r{^app/controllers/(.+)\.rb$}) { |m| "spec/controllers/#{m[1]}_spec.rb" }
+
+  # Watch para models
+  watch(%r{^app/models/(.+)\.rb$}) { |m| "spec/models/#{m[1]}_spec.rb" }
+
+  # Watch para jobs (se usar Active Job)
+  watch(%r{^app/jobs/(.+)\.rb$}) { |m| "spec/jobs/#{m[1]}_spec.rb" }
+
+  # Watch para mailers
+  watch(%r{^app/mailers/(.+)\.rb$}) { |m| "spec/mailers/#{m[1]}_spec.rb" }
+
+  # Watch para helpers
+  watch(%r{^app/helpers/(.+)\.rb$}) { |m| "spec/helpers/#{m[1]}_spec.rb" }
+
+  # Watch para config (se tiver specs para configurações)
+  watch(%r{^config/(.+)\.rb$}) { |m| "spec/config/#{m[1]}_spec.rb" }
+
+  # Watch para factories (se usar FactoryBot)
+  watch(%r{^spec/factories/(.+)\.rb$}) { "spec" }
+
+  # Watch para arquivos de rotas
+  watch(%r{^config/routes\.rb$}) { "spec/routing" }
+  watch(%r{^config/routes\.rb$}) { "spec/requests/api" } # Se tiver rotas de API separadas
 end
