@@ -15,7 +15,8 @@ fi
 bundle
 
 if ! [[ -f .db-created ]]; then
-  bin/rails db:prepare
+  bin/rails db:drop
+  bin/rails db:create
   touch .db-created
 fi
 
