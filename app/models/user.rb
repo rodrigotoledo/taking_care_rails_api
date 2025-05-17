@@ -9,6 +9,29 @@ class User < ApplicationRecord
 
   validate :roles_must_be_valid
 
+  has_many :doctor_appointments, class_name: 'Appointment', foreign_key: 'doctor_id', dependent: :destroy
+  has_many :patient_appointments, class_name: 'Appointment', foreign_key: 'patient_id', dependent: :destroy
+
+  scope :doctors, -> { joins(:roles).where(roles: { name: 'doctor' }) }
+  scope :patients, -> { joins(:roles).where(roles: { name: 'patient' }) }
+
+  # Métodos auxiliares
+  def doctor?
+    roles.exists?(name: 'doctor')
+  end
+
+  def patient?
+    roles.exists?(name: 'patient')
+  end
+
+  def admin?
+    roles.exists?(name: 'admin')
+  end
+
+  def manager?
+    roles.exists?(name: 'manager')
+  end
+
   private
 
   def roles_must_be_valid
