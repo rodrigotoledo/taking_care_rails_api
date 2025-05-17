@@ -71,4 +71,9 @@ Rails.application.configure do
   config.solid_queue.connects_to = { database: { writing: :queue } }
   config.cache_store = :solid_cache_store
   config.solid_cache.database = :cache
+
+  config.hosts << "*.ngrok.io"
+  config.hosts << ".ngrok.io"
+  config.hosts << ".ngrok-free.app"
+  config.hosts << "*.ngrok-free.app"
 end
